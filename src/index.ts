@@ -32,9 +32,6 @@ async function loadFont(options: Options) {
       if (options.weight) {
         fontFace.weight = options.weight;
       }
-      if (options.style) {
-        fontFace.style = options.style;
-      }
       if (options.stretch) {
         fontFace.stretch = options.stretch;
       }
@@ -55,33 +52,29 @@ async function loadFont(options: Options) {
     } else {
       loadFontByCss(options);
     }
-    return Promise.resolve();
   } catch (error) {
     console.error('[ffont-loader]:', error);
-    return Promise.reject(error);
+    throw error;
   }
 }
 
 function loadFontByCss(options: Options) {
-  const display = `font-display: ${options.display ? options.display : 'swap'}`,
-    style = options.style ? `font-style: ${options.style}` : '',
-    weight = options.weight ? `font-weight: ${options.weight}` : '',
-    stretch = options.stretch ? `font-stretch: ${options.stretch}` : '',
-    unicodeRange = options.unicodeRange ? `unicode-range: ${options.unicodeRange}` : '',
-    variant = options.variant ? `font-variant: ${options.variant}` : '',
-    featureSettings = options.featureSettings ? `font-feature-settings: ${options.featureSettings}` : '';
+  const properties = [
+    `font-display: ${options.display || 'swap'}`,
+    options.style ? `font-style: ${options.style}` : '',
+    options.weight ? `font-weight: ${options.weight}` : '',
+    options.stretch ? `font-stretch: ${options.stretch}` : '',
+    options.unicodeRange ? `unicode-range: ${options.unicodeRange}` : '',
+    options.variant ? `font-variant: ${options.variant}` : '',
+    options.featureSettings ? `font-feature-settings: ${options.featureSettings}` : '',
+  ];
+
   const fontCssStr = `
-    @font-face {
-      font-family: ${options.family};
-      src: url('${options.source}');
-      ${display}
-      ${style}
-      ${weight}
-      ${stretch}
-      ${unicodeRange}
-      ${variant}
-      ${featureSettings}
-    }
+      @font-face {
+        font-family: ${options.family};
+        src: url('${options.source}');
+        ${properties.join(';\n')}
+      }
     `;
   createStyleSheet(fontCssStr);
 }
@@ -98,12 +91,10 @@ function createStyleSheet(cssString: string) {
   const cssText = document.createTextNode(cssString);
   style.appendChild(cssText);
 
-  const heads = document.getElementsByTagName('head');
-  if (heads.length) {
-    heads[0].appendChild(style);
-  } else {
-    document.documentElement.appendChild(style);
+  if (!document.head) {
+    throw new Error('document.head is undefined');
   }
+  document.head.appendChild(style);
 }
 
 export default loadFont;

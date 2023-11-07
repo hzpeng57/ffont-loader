@@ -1,7 +1,7 @@
 {
   "name": "ffont-loader",
-  "version": "0.0.1",
-  "description": "A tool used to load fonts.",
+  "version": "0.0.2",
+  "description": "Dynamic custom font loader for JavaScript.",
   "module": "dist/ffont-loader.mjs",
   "jsnext:main": "dist/ffont-loader.mjs",
   "umd:main": "dist/ffont-loader.umd.js",
